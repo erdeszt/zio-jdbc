@@ -64,7 +64,7 @@ object ReturningSpec extends PgSpec {
                 .insertReturning[InvalidDecoderUser]
             }
 
-          assertZIO(insertResult.exit)(fails(isSubtype[RuntimeException](hasMessage(equalTo("Boom!")))))
+          assertZIO(insertResult.exit)(dies(isSubtype[RuntimeException](hasMessage(equalTo("Boom!")))))
         }
       } @@ TestAspect.samples(1),
       test("Updates returning rows") {
