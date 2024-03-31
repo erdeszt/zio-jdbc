@@ -1,8 +1,11 @@
 package zio.jdbc
 
 import zio._
+import zio.schema.Schema.Field
+import zio.schema._
 import zio.test._
 
+import java.util.UUID
 import scala.util.Random
 object QuerySpec extends ZIOSpecDefault {
 
@@ -80,6 +83,24 @@ object QuerySpec extends ZIOSpecDefault {
           }
         }
 
+        final case class U(id: UUID)
+
+        object U {
+          implicit val schema: Schema[U]           = Schema
+            .CaseClass1[UUID, U](
+              id0 = TypeId.fromTypeName("U"),
+              field0 = Schema.Field(name0 = "id", schema0 = Schema[UUID], get0 = _.id, set0 = (u, x) => u.copy(id = x)),
+              defaultConstruct0 = (id) => U(id)
+            )
+          implicit val jdbcDecoder: JdbcDecoder[U] = JdbcDecoder.fromSchema
+          implicit val jdbcEncoder: JdbcEncoder[U] = JdbcEncoder.fromSchema
+        }
+
+        def createTableU = sql"create table u (id uuid not null primary key)".execute
+
+        def insertU(): ZIO[ZConnection, Throwable, Unit] =
+          sql"insert into u (id) values ('7543dc39-98f8-44a6-aefc-bd90d9124e46')".insert.unit
+
         def createTableUsers =
           sql"""
           create table users (
@@ -124,6 +145,10 @@ object QuerySpec extends ZIOSpecDefault {
             val elements           = 3000
             for {
               _             <- createTableUsers
+              _             <- createTableU
+              _             <- insertU()
+              u             <- sql"select * from u".query[UUID].as[U].selectOne
+              _              = println(s"U IS CORRECT: ${u}")
               _             <- insertEverything(elements)
               rsClosedTuple <- ZIO.scoped {
                                  for {
