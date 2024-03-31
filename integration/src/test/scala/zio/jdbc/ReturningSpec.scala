@@ -36,6 +36,11 @@ object ReturningSpec extends PgSpec {
       )
     implicit val jdbcDecoder: JdbcDecoder[U] = JdbcDecoder.fromSchema
     implicit val jdbcEncoder: JdbcEncoder[U] = JdbcEncoder.fromSchema
+//    implicit val jdbcDecoder: JdbcDecoder[U] = JdbcDecoder[(UUID, String, Int)].map { case (ii, name, age) =>
+//      U(ii, name, age)
+//    }
+//    implicit val jdbcEncoder: JdbcEncoder[U] =
+//      JdbcEncoder[(UUID, String, Int)].contramap(u => (u.internalId, u.name, u.age))
   }
 
   final case class InvalidDecoderUser(internalId: UUID, name: String, age: Int)

@@ -94,6 +94,8 @@ object QuerySpec extends ZIOSpecDefault {
             )
           implicit val jdbcDecoder: JdbcDecoder[U] = JdbcDecoder.fromSchema
           implicit val jdbcEncoder: JdbcEncoder[U] = JdbcEncoder.fromSchema
+//          implicit val jdbcDecoder: JdbcDecoder[U] = JdbcDecoder[UUID].map(U.apply)
+//          implicit val jdbcEncoder: JdbcEncoder[U] = JdbcEncoder[UUID].contramap(u => u.id)
         }
 
         def createTableU = sql"create table u (id uuid not null primary key)".execute
